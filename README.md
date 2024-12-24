@@ -21,7 +21,7 @@ https://ibb.co/c8TCXDS
 
 # Full Code
 
-//Work of Bar-Bar Cohen Aharonson  and Tomer Elis
+//Work of Tomer Elis
 
 #define BAUD_RATE 9600
 #define TX_PIN 12
