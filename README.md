@@ -4,17 +4,13 @@ This project implements a USART (Universal Synchronous and Asynchronous Receiver
 
 
 # How It Works
-TX Process:
+The USART communication in this project is implemented through two main processes: transmitting (TX) and receiving (RX).
 
-Sends start, data, parity, and stop bits sequentially.
-Includes bit timing using millis() for precise transmission intervals.
-RX Process:
+The transmitter (TX) starts by preparing the data to send. It begins with a start bit, followed by the data bits, a parity bit (calculated using __builtin_popcount() for odd parity), and ends with a stop bit. Each bit is sent sequentially, with precise timing controlled by millis(). The transmitter ensures that all bits are sent properly before transitioning back to idle.
 
-Reads incoming bits and validates them.
-Checks start bit, data bits, parity, and stop bit for correctness.
-Error States:
+The receiver (RX) continuously monitors the RX pin for a start bit. Once detected, it reads the data bits, validates each bit using majority voting logic, and verifies the parity bit to ensure data integrity. If the parity or any other bit does not match the expected pattern, the receiver transitions to an error state, resets necessary parameters, and waits for the next frame.
 
-Handles errors in bit reading or timing, ensuring robustness in communication.
+Both TX and RX processes handle timing using BIT_TIME to ensure synchronization between the transmitter and receiver. This guarantees that the data transmission and reception are both accurate and robust, even in the presence of timing variations.
 
 # link to a scheme
 https://ibb.co/c8TCXDS
