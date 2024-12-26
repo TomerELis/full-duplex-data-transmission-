@@ -15,7 +15,7 @@ The receiver (RX) continuously monitors the RX pin for a start bit. Once detecte
 
 Both TX and RX processes handle timing using BIT_TIME to ensure synchronization between the transmitter and receiver. This guarantees that the data transmission and reception are both accurate and robust, even in the presence of timing variations.
 
-# link to a scheme
+# Link to a scheme
 https://ibb.co/c8TCXDS
 
 # Full Code
