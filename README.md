@@ -18,9 +18,145 @@ Both TX and RX processes handle timing using BIT_TIME to ensure synchronization 
 # Link to a scheme
 https://ibb.co/c8TCXDS
 
-# Full Code
+# Full Code Part 1
 
 //Work of Tomer Elis
+
+//
+
+#define BAUD_RATE 9600
+#define TX_PIN 12
+#define RX_PIN 13
+#define clock_out 9
+#define clock_in 7
+#define Min 20
+#define Max 50
+//
+
+
+//variables TX
+#define buffer 'a'	//we made a buffer 
+#define BIT_TIME 1/50
+
+static int count=0,x=0;
+static float ref_clock=millis(),ref_random=millis(); //status time
+static unsigned long Time;
+
+
+//variables RX
+static int status,flg=0,counter=0,message;
+
+//'buffer' is the input(sending by TX)
+//and 'message' is the output (recieve in RX)
+
+void setup()
+{
+  pinMode(TX_PIN, OUTPUT);
+  pinMode(RX_PIN, INPUT);
+  
+  pinMode(clock_out, OUTPUT);
+  pinMode(clock_in, INPUT);
+  
+  Serial.begin(BAUD_RATE);
+  
+
+  
+}
+
+void loop()
+{
+
+    Usart_TX();
+  	Usart_RX();
+  
+}
+
+
+
+
+
+void Usart_TX()
+{
+  
+  boolean uprising = false;
+  
+  if (count == 8)
+  {
+   int rand = random(Min,Max);
+   Time = millis();
+   if (Time-ref_random >=rand)
+     count=0;
+
+  }
+  
+  
+  else //Here begins the clock to run **CHECK
+  { 
+    Time = millis();
+  	if (Time-ref_clock >= (0.5*BIT_TIME))
+  	{	
+    	x=1-x;//Toggle X
+    	if (x==1)
+      		uprising = true;
+        digitalWrite(clock_out,x); //write on the arduino in pin(port number clock_out) x = {1,0} which sync the clock
+        ref_clock = millis();
+      
+      
+    }
+    //CHECK**
+    
+    if (uprising == true)
+    {
+      int digiti;
+      digiti = bitRead(buffer, count);		//read from the buffer. buffer is locate inside the data and I want to send. digiti = buffer[x] bit by bit
+      //Serial.print(lsb);
+      digitalWrite(TX_PIN, digiti);		//write the data[x] on the pin\port TX_PIN
+      //Serial.print(digiti);
+
+      count++;
+	  ref_random = millis();	
+    }
+    
+  }
+  
+  
+
+
+    
+   
+}
+
+void Usart_RX()
+{
+  
+  int clock_pin = digitalRead(clock_in);
+  if (clock_pin == 1)
+    flg =1;
+  if (flg == 1 && clock_pin == 0)  //falling
+  {
+    bitWrite(message,counter, digitalRead(RX_PIN));	//" digitalRead(RX_PIN)" == I am reading from the port and than insert it into message with fu
+							                                      //function bitWrite. so we can unserstand at the end what is the message.
+    counter++;
+    flg =0;
+    
+    if (counter == 8)
+    {
+      Serial.print(char(message));
+      counter = 0;
+      message = 0;
+    }
+    
+  }
+  
+
+
+}
+
+
+
+
+
+#Part 2
 
 #define BAUD_RATE 9600
 #define TX_PIN 12
