@@ -45,77 +45,74 @@ static int rx_status, clock_flag = 0, bit_counter = 0, received_message;
 // 'received_message' is the output (received by RX)
 
 void setup() {
-  pinMode(TX_PIN, OUTPUT);
-  pinMode(RX_PIN, INPUT);
+    pinMode(TX_PIN, OUTPUT);
+    pinMode(RX_PIN, INPUT);
 
-  pinMode(CLOCK_OUT, OUTPUT);
-  pinMode(CLOCK_IN, INPUT);
+    pinMode(CLOCK_OUT, OUTPUT);
+    pinMode(CLOCK_IN, INPUT);
 
-  Serial.begin(BAUD_RATE);
+    Serial.begin(BAUD_RATE);
 }
 
 void loop() {
-  Usart_TX();
-  Usart_RX();
+    Usart_TX();
+    Usart_RX();
 }
 
 // USART Transmit Function
 void Usart_TX() {
-  boolean rising_edge = false;
+    boolean rising_edge = false;
 
-  if (tx_count == 8) {
-    // Introduce random delay after sending all 8 bits
-    int random_delay = random(MIN_DELAY, MAX_DELAY);
-    current_time = millis();
-    if (current_time - random_delay_ref >= random_delay) {
-      tx_count = 0;
-    }
-  } else {
-    // Generate clock signal
-    current_time = millis();
-    if (current_time - tx_clock_ref >= (0.5 * BIT_TIME)) {
-      clock_toggle = 1 - clock_toggle; // Toggle clock signal
-      if (clock_toggle == 1) {
-        rising_edge = true;
-      }
-      digitalWrite(CLOCK_OUT, clock_toggle); // Write clock signal to pin
-      tx_clock_ref = millis();
-    }
+    if (tx_count == 8) {
+        // Introduce random delay after sending all 8 bits
+        int random_delay = random(MIN_DELAY, MAX_DELAY);
+        current_time = millis();
+        if (current_time - random_delay_ref >= random_delay) {
+            tx_count = 0;
+        }
+    } else {
+        // Generate clock signal
+        current_time = millis();
+        if (current_time - tx_clock_ref >= (0.5 * BIT_TIME)) {
+            clock_toggle = 1 - clock_toggle; // Toggle clock signal
+            if (clock_toggle == 1) {
+                rising_edge = true;
+            }
+            digitalWrite(CLOCK_OUT, clock_toggle); // Write clock signal to pin
+            tx_clock_ref = millis();
+        }
 
-    // Transmit data on clock rising edge
-    if (rising_edge) {
-      int bit_to_send = bitRead(BUFFER, tx_count); // Read bit from buffer
-      digitalWrite(TX_PIN, bit_to_send); // Write bit to TX pin
-      tx_count++;
-      random_delay_ref = millis();
+        // Transmit data on clock rising edge
+        if (rising_edge) {
+            int bit_to_send = bitRead(BUFFER, tx_count); // Read bit from buffer
+            digitalWrite(TX_PIN, bit_to_send); // Write bit to TX pin
+            tx_count++;
+            random_delay_ref = millis();
+        }
     }
-  }
 }
 
 // USART Receive Function
 void Usart_RX() {
-  int clock_input = digitalRead(CLOCK_IN);
+    int clock_input = digitalRead(CLOCK_IN);
 
-  if (clock_input == HIGH) {
-    clock_flag = 1;
-  }
-
-  if (clock_flag == 1 && clock_input == LOW) { // Detect falling edge
-    // Read bit from RX pin and write it into received_message
-    bitWrite(received_message, bit_counter, digitalRead(RX_PIN));
-    bit_counter++;
-    clock_flag = 0;
-
-    if (bit_counter == 8) { // Complete message received
-      Serial.print(char(received_message)); // Output received message
-      bit_counter = 0;
-      received_message = 0;
+    if (clock_input == HIGH) {
+        clock_flag = 1;
     }
-  }
+
+    if (clock_flag == 1 && clock_input == LOW) { // Detect falling edge
+        // Read bit from RX pin and write it into received_message
+        bitWrite(received_message, bit_counter, digitalRead(RX_PIN));
+        bit_counter++;
+        clock_flag = 0;
+
+        if (bit_counter == 8) { // Complete message received
+            Serial.print(char(received_message)); // Output received message
+            bit_counter = 0;
+            received_message = 0;
+        }
+    }
 }
-
-
-
 
 
 # Part 2
