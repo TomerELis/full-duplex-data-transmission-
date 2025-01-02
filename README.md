@@ -81,18 +81,18 @@ void Usart_TX()
   
   if (count == 8)
   {
-   int rand = random(Min,Max);
-   Time = millis();
-   if (Time-ref_random >=rand)
-     count=0;
+  int rand = random(Min,Max);
+  Time = millis();
+  if (Time-ref_random >=rand)
+  	count=0;
 
   }
   
   
   else //Here begins the clock to run **CHECK
-  { 
-    Time = millis();
-  	if (Time-ref_clock >= (0.5*BIT_TIME))
+  {
+  	Time = millis();
+   	if (Time-ref_clock >= (0.5*BIT_TIME))
   	{	
     	x=1-x;//Toggle X
     	if (x==1)
